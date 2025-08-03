@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do Productivity App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-lg hidden md:block">
+    <div class="p-6 font-bold text-lg border-b">📌 Menu</div>
+    <nav class="flex flex-col p-4 space-y-2">
+      <button onclick="showPage('todo')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">✅ To-Do</button>
+      <button onclick="showPage('pomodoro')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">🕒 Pomodoro</button>
+      <button onclick="showPage('checklist')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">📄 Checklist</button>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow px-6 py-4 text-xl font-bold border-b">
+      📋 Produktivitas App
+    </header>
+
+    <!-- Page Content -->
+    <main class="p-6 flex-1">
+      <!-- To-Do Page -->
+      <section id="todo" class="page">
+        <h2 class="text-xl font-semibold mb-4">To-Do List</h2>
+        <div class="flex gap-2 mb-4">
+          <input id="todoInput" type="text" placeholder="Tambah tugas..." class="flex-1 px-3 py-2 border rounded-lg focus:ring focus:ring-blue-400">
+          <button onclick="addTodo()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tambah</button>
+        </div>
+        <ul id="todoList" class="space-y-2"></ul>
+      </section>
+
+      <!-- Pomodoro Page -->
+<section id="pomodoro" class="page hidden">
+  <h2 class="text-xl font-semibold mb-4">Pomodoro Timer</h2>
+
+  <div class="flex flex-col items-center space-y-4">
+    <div class="flex gap-2">
+      <label class="text-sm">Durasi (menit):</label>
+      <input id="durationInput" type="number" min="1" max="120" value="25" class="w-20 px-2 py-1 border rounded text-center">
+    </div>
+
+    <div id="timer" class="text-5xl font-bold">25:00</div>
+
+    <div class="flex gap-3">
+      <button onclick="startPomodoro()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Start</button>
+      <button onclick="stopPomodoro()" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Stop</button>
+      <button onclick="resetPomodoro()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Reset</button>
+    </div>
+  </div>
+</section>
+
+
+      <!-- Checklist Page -->
+      <section id="checklist" class="page hidden">
+        <h2 class="text-xl font-semibold mb-4">Checklist</h2>
+        <ul id="checklistList" class="space-y-2">
+  <!-- Akan diisi otomatis dari todo -->
+</ul>
+
+        <ul class="space-y-2">
+          <li><label><input type="checkbox" class="mr-2"> Baca buku 30 menit</label></li>
+          <li><label><input type="checkbox" class="mr-2"> Olahraga ringan</label></li>
+          <li><label><input type="checkbox" class="mr-2"> Minum air putih</label></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+  let pomodoroInterval = null;
+  let remainingTime = 25 * 60;
+  let isRunning = false;
+
+  function updateTimerDisplay() {
+    const minutes = Math.floor(remainingTime / 60);
+    const seconds = remainingTime % 60;
+    document.getElementById("timer").textContent =
+      `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  function startPomodoro() {
+    if (isRunning) return; // prevent multiple timers
+    const inputMinutes = parseInt(document.getElementById("durationInput").value);
+    if (!pomodoroInterval || remainingTime === 0) {
+      remainingTime = inputMinutes * 60;
+    }
+
+    isRunning = true;
+    pomodoroInterval = setInterval(() => {
+      if (remainingTime <= 0) {
+        clearInterval(pomodoroInterval);
+        isRunning = false;
+        alert("⏰ Waktu habis!");
+        return;
+      }
+      remainingTime--;
+      updateTimerDisplay();
+    }, 1000);
+  }
+
+  function stopPomodoro() {
+    clearInterval(pomodoroInterval);
+    isRunning = false;
+  }
+
+  function resetPomodoro() {
+    const inputMinutes = parseInt(document.getElementById("durationInput").value);
+    clearInterval(pomodoroInterval);
+    remainingTime = inputMinutes * 60;
+    isRunning = false;
+    updateTimerDisplay();
+  }
+
+  // Set initial display
+  updateTimerDisplay();
+
+
+  // ... kode timer di atas ...
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(page => {
+    page.classList.add('hidden');
+  });
+  document.getElementById(pageId).classList.remove('hidden');
+}
+
+// Set initial display
+updateTimerDisplay();
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const todoText = input.value.trim();
+
+  if (todoText !== '') {
+    // Tambahkan ke halaman To-Do
+    const todoList = document.getElementById('todoList');
+    const li = document.createElement('li');
+    li.className = "flex justify-between items-center bg-white px-4 py-2 rounded shadow";
+    li.innerHTML = `
+      <span>${todoText}</span>
+      <button onclick="this.parentElement.remove(); removeChecklist('${todoText}')" class="text-red-500 hover:text-red-700">Hapus</button>
+    `;
+    todoList.appendChild(li);
+
+    // Tambahkan juga ke halaman Checklist
+    addToChecklist(todoText);
+
+    input.value = '';
+  }
+}
+
+function addToChecklist(task) {
+  const checklist = document.getElementById('checklistList');
+
+  const li = document.createElement('li');
+  li.setAttribute("data-task", task); // supaya bisa dicari saat ingin dihapus
+  li.innerHTML = `
+    <label>
+      <input type="checkbox" class="mr-2"> ${task}
+    </label>
+  `;
+
+  checklist.appendChild(li);
+}
+
+function removeChecklist(task) {
+  const checklist = document.getElementById('checklistList');
+  const items = checklist.querySelectorAll('li');
+
+  items.forEach(li => {
+    if (li.getAttribute("data-task") === task) {
+      li.remove();
+    }
+  });
+}
+
+
+// Tampilkan halaman To-Do secara default
+showPage('todo');
+
+</script>
+
+
+</body>
+</html>
