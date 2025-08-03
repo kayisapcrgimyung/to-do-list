@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <header class="bg-white shadow px-6 py-4 text-xl font-bold border-b flex justify-between items-center">
+  📋 Produktivitas App
+
+  <!-- Tombol toggle sidebar -->
+  <button class="md:hidden text-2xl" onclick="toggleSidebar()">
+    ☰
+  </button>
+</header>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>To-Do Productivity App</title>
@@ -9,14 +18,18 @@
 <body class="bg-gray-100 min-h-screen flex">
 
   <!-- Sidebar -->
-  <aside class="w-64 bg-white shadow-lg hidden md:block">
-    <div class="p-6 font-bold text-lg border-b">📌 Menu</div>
-    <nav class="flex flex-col p-4 space-y-2">
-      <button onclick="showPage('todo')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">✅ To-Do</button>
-      <button onclick="showPage('pomodoro')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">🕒 Pomodoro</button>
-      <button onclick="showPage('checklist')" class="text-left hover:bg-blue-100 px-4 py-2 rounded">📄 Checklist</button>
-    </nav>
-  </aside>
+  <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-50">
+  <div class="p-6 font-bold text-lg border-b flex justify-between items-center">
+    📌 Menu
+    <button class="md:hidden text-xl" onclick="toggleSidebar()">✕</button>
+  </div>
+  <nav class="flex flex-col p-4 space-y-2">
+    <button onclick="showPage('todo'); toggleSidebar()" class="text-left hover:bg-blue-100 px-4 py-2 rounded">✅ To-Do</button>
+    <button onclick="showPage('pomodoro'); toggleSidebar()" class="text-left hover:bg-blue-100 px-4 py-2 rounded">🕒 Pomodoro</button>
+    <button onclick="showPage('checklist'); toggleSidebar()" class="text-left hover:bg-blue-100 px-4 py-2 rounded">📄 Checklist</button>
+  </nav>
+</aside>
+
 
   <!-- Main Content -->
   <div class="flex-1 flex flex-col">
@@ -179,6 +192,10 @@ function removeChecklist(task) {
       li.remove();
     }
   });
+}
+ function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.classList.toggle('-translate-x-full');
 }
 
 
